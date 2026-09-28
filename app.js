@@ -1,5 +1,5 @@
 // ===== ONLYBOSSHATS APP =====
-const SUPABASE_URL = 'https://wvoqwpmteurqmtwtvior.supabase.co';
+sb_publishable_nE1xWjVKxVnFmEpBDuKNqQ_7Hoh7-OL const SUPABASE_URL = 'https://wvoqwpmteurqmtwtvior.supabase.co';
 const SUPABASE_KEY = 'PEGA_AQUI_TU_PUBLISHABLE_KEY';
 
 const supabaseClient = window.supabase.createClient(
