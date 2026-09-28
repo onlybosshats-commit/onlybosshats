@@ -993,4 +993,12 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') {
     closeAll();
   }
-});
+});// ===== ACCESO ADMIN SECRETO =====
+function checkSecretAdmin() {
+  if (window.location.hash === '#onlyboss-admin') {
+    showSection('admin');
+  }
+}
+
+window.addEventListener('load', checkSecretAdmin);
+window.addEventListener('hashchange', checkSecretAdmin);
