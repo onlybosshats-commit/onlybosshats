@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OnlyBossHats | Gorras Premium</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo" onclick="showSection('home')">
+        <span class="logo-only">ONLY</span><span class="logo-boss">BOSS</span><span class="logo-hats">HATS</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#" onclick="showSection('home')">Inicio</a></li>
+        <li><a href="#" onclick="showSection('gorras')">Gorras</a></li>
+        <li><a href="#" onclick="showSection('drop')">OnlyBoss Drop</a></li>
+        <li><a href="#" onclick="showSection('about')">Nosotros</a></li>
+        <li><a href="#" onclick="showSection('contact')">Contacto</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="cart-btn" onclick="toggleCart()">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button class="admin-btn" onclick="showSection('admin')" title="Admin">
+          <i class="fas fa-user-shield"></i>
+        </button>
+        <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CART SIDEBAR -->
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>Tu Bolsa</h3>
+      <button onclick="toggleCart()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotal">$0</span>
+      </div>
+      <button class="btn-primary btn-block" onclick="checkout()">Finalizar Compra (WhatsApp)</button>
+    </div>
+  </div>
+  <div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+  <!-- HOME -->
+  <section id="home" class="section active">
+    <div class="hero">
+      <div class="hero-content">
+        <p class="hero-tag">ESTILO DE JEFE</p>
+        <h1>ONLY<span>BOSS</span>HATS</h1>
+        <p class="hero-desc">Gorras premium. Calidad street. Actitud de boss.</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="showSection('gorras')">Ver Gorras</button>
+          <button class="btn-outline" onclick="showSection('drop')">OnlyBoss Drop</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-circle"></div>
+        <div class="hero-badge">NEW DROP</div>
+      </div>
+    </div>
+
+    <div class="featured">
+      <div class="section-header">
+        <h2>DESTACADOS</h2>
+        <p>Las más pedidas</p>
+      </div>
+      <div class="products-grid" id="featuredProducts"></div>
+    </div>
+
+    <div class="banner-drop">
+      <div class="banner-content">
+        <h2>ONLYBOSS <span>DROP</span></h2>
+        <p>Ediciones limitadas. Solo para los que saben.</p>
+        <button class="btn-primary" onclick="showSection('drop')">Explorar Drop</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GORRAS -->
+  <section id="gorras" class="section">
+    <div class="page-header">
+      <h1>GORRAS</h1>
+      <p>Catálogo completo · Calidad premium</p>
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all" onclick="filterProducts('all', this)">Todas</button>
+      <button class="filter-btn" data-filter="in-stock" onclick="filterProducts('in-stock', this)">En Stock</button>
+      <button class="filter-btn" data-filter="sale" onclick="filterProducts('sale', this)">Ofertas</button>
+    </div>
+    <div class="products-grid" id="gorrasProducts"></div>
+  </section>
+
+  <!-- DROP -->
+  <section id="drop" class="section">
+    <div class="page-header drop-header">
+      <h1>ONLYBOSS <span>DROP</span></h1>
+      <p>Ediciones limitadas · Piezas exclusivas</p>
+    </div>
+    <div class="products-grid" id="dropProducts"></div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="section">
+    <div class="about-container">
+      <div class="about-text">
+        <h1>NOSOTROS</h1>
+        <p>OnlyBossHats nació de la calle y del respeto por el estilo auténtico. Inspirados en marcas como Barbas Hats y El 31 Hats, creamos gorras con identidad propia.</p>
+        <p>Negro. Rojo. Blanco. Colores que hablan por sí solos. Cada gorra está pensada para el que se siente boss.</p>
+        <div class="about-stats">
+          <div class="stat">
+            <span class="stat-num" id="statProducts">0</span>
+            <span class="stat-label">Modelos</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">100%</span>
+            <span class="stat-label">Actitud</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section">
+    <div class="page-header">
+      <h1>CONTACTO</h1>
+      <p>¿Dudas? Escríbenos</p>
+    </div>
+    <div class="contact-grid">
+      <a href="https://wa.me/5210000000000" target="_blank" class="contact-card">
+        <i class="fab fa-whatsapp"></i>
+        <h3>WhatsApp</h3>
+        <p>Pedidos y consultas</p>
+      </a>
+      <a href="https://instagram.com/onlybosshats" target="_blank" class="contact-card">
+        <i class="fab fa-instagram"></i>
+        <h3>Instagram</h3>
+        <p>@onlybosshats</p>
+      </a>
+      <div class="contact-card">
+        <i class="fas fa-envelope"></i>
+        <h3>Email</h3>
+        <p>info@onlybosshats.com</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin" class="section">
+    <div id="adminLogin" class="admin-login">
+      <div class="login-box">
+        <h2><i class="fas fa-lock"></i> Admin OnlyBoss</h2>
+        <p>Acceso restringido</p>
+        <input type="password" id="adminPassword" placeholder="Contraseña" onkeydown="if(event.key==='Enter')loginAdmin()">
+        <button class="btn-primary btn-block" onclick="loginAdmin()">Entrar</button>
+        <p class="login-hint">Contraseña por defecto: <code>onlyboss2024</code></p>
+      </div>
+    </div>
+
+    <div id="adminPanel" class="admin-panel" style="display:none;">
+      <div class="admin-header">
+        <h1>PANEL ADMIN</h1>
+        <button class="btn-outline" onclick="logoutAdmin()">Cerrar Sesión</button>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="showAdminTab('products', this)">Productos</button>
+        <button class="admin-tab" onclick="showAdminTab('add', this)">Agregar / Editar</button>
+        <button class="admin-tab" onclick="showAdminTab('orders', this)">Pedidos</button>
+      </div>
+
+      <!-- PRODUCTS LIST -->
+      <div id="adminProducts" class="admin-content">
+        <div class="admin-toolbar">
+          <input type="text" id="adminSearch" placeholder="Buscar producto..." oninput="renderAdminProducts()">
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADD / EDIT -->
+      <div id="adminAdd" class="admin-content" style="display:none;">
+        <form id="productForm" class="product-form" onsubmit="saveProduct(event)">
+          <input type="hidden" id="editId">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre *</label>
+              <input type="text" id="pName" required placeholder="Ej: Boss Classic Black">
+            </div>
+            <div class="form-group">
+              <label>Categoría *</label>
+              <select id="pCategory" required>
+                <option value="gorras">Gorras</option>
+                <option value="drop">OnlyBoss Drop</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Precio *</label>
+              <input type="number" id="pPrice" required min="0" step="0.01" placeholder="450">
+            </div>
+            <div class="form-group">
+              <label>Precio con descuento</label>
+              <input type="number" id="pSalePrice" min="0" step="0.01" placeholder="Opcional">
+            </div>
+            <div class="form-group">
+              <label>Stock *</label>
+              <input type="number" id="pStock" required min="0" placeholder="10">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea id="pDesc" rows="3" placeholder="Descripción corta de la gorra..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Imagen</label>
+            <div class="image-upload">
+              <input type="file" id="pImage" accept="image/*" onchange="previewImage(event)">
+              <div class="image-preview" id="imagePreview">
+                <i class="fas fa-camera"></i>
+                <span>Subir foto</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-outline" onclick="resetForm()">Limpiar</button>
+            <button type="submit" class="btn-primary" id="saveBtn">Guardar Producto</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ORDERS (mock) -->
+      <div id="adminOrders" class="admin-content" style="display:none;">
+        <p class="orders-note">Los pedidos se gestionan por WhatsApp. Aquí puedes ver un resumen de las últimas interacciones del carrito (local).</p>
+        <div id="ordersList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCT MODAL -->
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="logo-only">ONLY</span><span class="logo-boss">BOSS</span><span class="logo-hats">HATS</span>
+        <p>Estilo de jefe. Actitud real.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#" onclick="showSection('gorras')">Gorras</a>
+        <a href="#" onclick="showSection('drop')">Drop</a>
+        <a href="#" onclick="showSection('contact')">Contacto</a>
+      </div>
+      <div class="footer-social">
+        <a href="https://instagram.com/onlybosshats" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://wa.me/5210000000000" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 OnlyBossHats. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
