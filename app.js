@@ -1,4 +1,4 @@
-// ===== ONLYBOSSHATS APP =====// ===== ONLYBOSSHATS APP =====
+// ===== ONLYBOSSHATS APP =====
 
 const SUPABASE_URL = 'https://wvoqwpmteurqmtwtvior.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_nE1xWjVKxVnFmEpBDuKNqQ_7Hoh7-OL';
@@ -13,47 +13,8 @@ const STORAGE_KEY = 'onlybosshats_products';
 const CART_KEY = 'onlybosshats_cart';
 const SESSION_KEY = 'onlybosshats_admin';
 
-// Default products (seed)
+// ===== DEFAULT PRODUCTS =====
 const DEFAULT_PRODUCTS = [
-  {
-    id: '1',
-    name: 'Boss Classic Black',
-    category: 'gorras',
-    price: 450,
-    salePrice: null,
-    stock: 15,
-    description: 'Gorra clásica negra con logo bordado en rojo. Ajuste perfecto y tela premium.',
-    image: null,
-    createdAt: Date.now()
-  },
-  {
-    id: '2',
-    name: 'Red Boss Snapback',
-    category: 'gorras',
-    price: 480,
-    salePrice: null,
-    stock: 10,
-    description: 'Snapback roja con diseño premium.',
-    image: null,
-    createdAt: Date.now()
-  }
-];
-  {
-    id: '1',
-    name: 'Boss Classic Black',
-    category: 'gorras',
-    price: 450,
-    salePrice: null,
-    stock: 15,
-    description: 'Gorra clásica negra con logo bordado en rojo. Ajuste perfecto y tela premium.',
-    image: null,
-    createdAt: Date.now()
-  },
-  {
-    id: '2',
-    name: 'Red Boss Snapback',
-    category: 'gorras',
-    price: 480,
   {
     id: '1',
     name: 'Boss Classic Black',
@@ -123,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAll();
   updateCartUI();
 
-  // Check admin session
   if (sessionStorage.getItem(SESSION_KEY) === 'true') {
     showAdminPanel();
   }
@@ -131,10 +91,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ===== STORAGE =====
 function loadProducts() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    products = JSON.parse(saved);
-  } else {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      products = JSON.parse(saved);
+    } else {
+      products = [...DEFAULT_PRODUCTS];
+      saveProducts();
+    }
+  } catch (error) {
+    console.error('Error cargando productos:', error);
     products = [...DEFAULT_PRODUCTS];
     saveProducts();
   }
@@ -145,8 +112,13 @@ function saveProducts() {
 }
 
 function loadCart() {
-  const saved = localStorage.getItem(CART_KEY);
-  cart = saved ? JSON.parse(saved) : [];
+  try {
+    const saved = localStorage.getItem(CART_KEY);
+    cart = saved ? JSON.parse(saved) : [];
+  } catch (error) {
+    console.error('Error cargando carrito:', error);
+    cart = [];
+  }
 }
 
 function saveCart() {
@@ -155,21 +127,46 @@ function saveCart() {
 
 // ===== NAVIGATION =====
 function showSection(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.getElementById('navLinks').classList.remove('open');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelectorAll('.section').forEach(section => {
+    section.classList.remove('active');
+  });
+
+  const section = document.getElementById(id);
+
+  if (!section) return;
+
+  section.classList.add('active');
+
+  const navLinks = document.getElementById('navLinks');
+
+  if (navLinks) {
+    navLinks.classList.remove('open');
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
 
   if (id === 'gorras') renderGorras();
   if (id === 'drop') renderDrop();
   if (id === 'home') renderFeatured();
+
   if (id === 'about') {
-    document.getElementById('statProducts').textContent = products.length;
+    const statProducts = document.getElementById('statProducts');
+
+    if (statProducts) {
+      statProducts.textContent = products.length;
+    }
   }
 }
 
 function toggleMenu() {
-  document.getElementById('navLinks').classList.toggle('open');
+  const navLinks = document.getElementById('navLinks');
+
+  if (navLinks) {
+    navLinks.classList.toggle('open');
+  }
 }
 
 // ===== RENDER PRODUCTS =====
@@ -179,37 +176,70 @@ function renderAll() {
   renderDrop();
 }
 
-function getDisplayPrice(p) {
-  if (p.salePrice && p.salePrice > 0 && p.salePrice < p.price) {
-    return { current: p.salePrice, old: p.price, onSale: true };
+function getDisplayPrice(product) {
+  if (
+    product.salePrice &&
+    product.salePrice > 0 &&
+    product.salePrice < product.price
+  ) {
+    return {
+      current: product.salePrice,
+      old: product.price,
+      onSale: true
+    };
   }
-  return { current: p.price, old: null, onSale: false };
+
+  return {
+    current: product.price,
+    old: null,
+    onSale: false
+  };
 }
 
-function productCardHTML(p) {
-  const price = getDisplayPrice(p);
-  const soldOut = p.stock <= 0;
-  let badge = '';
-  if (soldOut) badge = '<span class="product-badge badge-soldout">Sold Out</span>';
-  else if (price.onSale) badge = '<span class="product-badge badge-sale">Oferta</span>';
-  else if (p.category === 'drop') badge = '<span class="product-badge badge-drop">Drop</span>';
+function productCardHTML(product) {
+  const price = getDisplayPrice(product);
+  const soldOut = product.stock <= 0;
 
-  const img = p.image
-    ? `<img src="${p.image}" alt="${p.name}" class="product-img">`
+  let badge = '';
+
+  if (soldOut) {
+    badge = '<span class="product-badge badge-soldout">Sold Out</span>';
+  } else if (price.onSale) {
+    badge = '<span class="product-badge badge-sale">Oferta</span>';
+  } else if (product.category === 'drop') {
+    badge = '<span class="product-badge badge-drop">Drop</span>';
+  }
+
+  const image = product.image
+    ? `<img src="${product.image}" alt="${product.name}" class="product-img">`
     : `<div class="product-img-placeholder"><i class="fas fa-hat-cowboy"></i></div>`;
 
   return `
-    <div class="product-card" onclick="openProduct('${p.id}')">
+    <div class="product-card" onclick="openProduct('${product.id}')">
       ${badge}
-      ${img}
+      ${image}
+
       <div class="product-info">
-        <div class="product-name">${p.name}</div>
+        <div class="product-name">${product.name}</div>
+
         <div class="product-price">
-          <span class="price-current ${price.onSale ? 'price-sale' : ''}">$${price.current}</span>
-          ${price.old ? `<span class="price-old">$${price.old}</span>` : ''}
+          <span class="price-current ${price.onSale ? 'price-sale' : ''}">
+            $${price.current}
+          </span>
+
+          ${
+            price.old
+              ? `<span class="price-old">$${price.old}</span>`
+              : ''
+          }
         </div>
+
         <div class="product-actions" onclick="event.stopPropagation()">
-          <button class="btn-add" ${soldOut ? 'disabled' : ''} onclick="addToCart('${p.id}')">
+          <button
+            class="btn-add"
+            ${soldOut ? 'disabled' : ''}
+            onclick="addToCart('${product.id}')"
+          >
             ${soldOut ? 'Agotado' : 'Agregar'}
           </button>
         </div>
@@ -219,174 +249,329 @@ function productCardHTML(p) {
 }
 
 function renderFeatured() {
-  const featured = products.filter(p => p.stock > 0).slice(0, 4);
-  document.getElementById('featuredProducts').innerHTML =
-    featured.length ? featured.map(productCardHTML).join('') : '<p style="grid-column:1/-1;text-align:center;color:#888">No hay productos aún</p>';
+  const container = document.getElementById('featuredProducts');
+
+  if (!container) return;
+
+  const featured = products
+    .filter(product => product.stock > 0)
+    .slice(0, 4);
+
+  container.innerHTML = featured.length
+    ? featured.map(productCardHTML).join('')
+    : '<p style="grid-column:1/-1;text-align:center;color:#888">No hay productos aún</p>';
 }
 
 function renderGorras() {
-  let list = products.filter(p => p.category === 'gorras');
-  if (currentFilter === 'in-stock') list = list.filter(p => p.stock > 0);
-  if (currentFilter === 'sale') list = list.filter(p => p.salePrice && p.salePrice < p.price);
-  document.getElementById('gorrasProducts').innerHTML =
-    list.length ? list.map(productCardHTML).join('') : '<p style="grid-column:1/-1;text-align:center;color:#888">No hay gorras en esta categoría</p>';
+  const container = document.getElementById('gorrasProducts');
+
+  if (!container) return;
+
+  let list = products.filter(
+    product => product.category === 'gorras'
+  );
+
+  if (currentFilter === 'in-stock') {
+    list = list.filter(product => product.stock > 0);
+  }
+
+  if (currentFilter === 'sale') {
+    list = list.filter(
+      product =>
+        product.salePrice &&
+        product.salePrice < product.price
+    );
+  }
+
+  container.innerHTML = list.length
+    ? list.map(productCardHTML).join('')
+    : '<p style="grid-column:1/-1;text-align:center;color:#888">No hay gorras en esta categoría</p>';
 }
 
 function renderDrop() {
-  const list = products.filter(p => p.category === 'drop');
-  document.getElementById('dropProducts').innerHTML =
-    list.length ? list.map(productCardHTML).join('') : '<p style="grid-column:1/-1;text-align:center;color:#888">Próximamente nuevos drops...</p>';
+  const container = document.getElementById('dropProducts');
+
+  if (!container) return;
+
+  const list = products.filter(
+    product => product.category === 'drop'
+  );
+
+  container.innerHTML = list.length
+    ? list.map(productCardHTML).join('')
+    : '<p style="grid-column:1/-1;text-align:center;color:#888">Próximamente nuevos drops...</p>';
 }
 
 function filterProducts(filter, btn) {
   currentFilter = filter;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+
+  document.querySelectorAll('.filter-btn').forEach(button => {
+    button.classList.remove('active');
+  });
+
+  if (btn) {
+    btn.classList.add('active');
+  }
+
   renderGorras();
 }
 
 // ===== PRODUCT MODAL =====
 function openProduct(id) {
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  const price = getDisplayPrice(p);
-  const soldOut = p.stock <= 0;
+  const product = products.find(item => item.id === id);
 
-  const img = p.image
-    ? `<img src="${p.image}" alt="${p.name}" class="modal-img">`
+  if (!product) return;
+
+  const price = getDisplayPrice(product);
+  const soldOut = product.stock <= 0;
+
+  const image = product.image
+    ? `<img src="${product.image}" alt="${product.name}" class="modal-img">`
     : `<div class="modal-img-placeholder"><i class="fas fa-hat-cowboy"></i></div>`;
 
-  document.getElementById('modalBody').innerHTML = `
-    ${img}
+  const modalBody = document.getElementById('modalBody');
+  const productModal = document.getElementById('productModal');
+
+  if (!modalBody || !productModal) return;
+
+  modalBody.innerHTML = `
+    ${image}
+
     <div class="modal-info">
-      <h2>${p.name}</h2>
+      <h2>${product.name}</h2>
+
       <div class="product-price">
-        <span class="price-current ${price.onSale ? 'price-sale' : ''}">$${price.current}</span>
-        ${price.old ? `<span class="price-old">$${price.old}</span>` : ''}
+        <span class="price-current ${price.onSale ? 'price-sale' : ''}">
+          $${price.current}
+        </span>
+
+        ${
+          price.old
+            ? `<span class="price-old">$${price.old}</span>`
+            : ''
+        }
       </div>
-      <p>${p.description || 'Sin descripción.'}</p>
+
+      <p>${product.description || 'Sin descripción.'}</p>
+
       <div class="modal-stock ${soldOut ? 'stock-out' : 'stock-ok'}">
-        ${soldOut ? '● Agotado' : `● ${p.stock} en stock`}
+        ${
+          soldOut
+            ? '● Agotado'
+            : `● ${product.stock} en stock`
+        }
       </div>
-      <button class="btn-primary btn-block" ${soldOut ? 'disabled' : ''} onclick="addToCart('${p.id}'); closeModal();">
+
+      <button
+        class="btn-primary btn-block"
+        ${soldOut ? 'disabled' : ''}
+        onclick="addToCart('${product.id}'); closeModal();"
+      >
         ${soldOut ? 'Sold Out' : 'Agregar al carrito'}
       </button>
     </div>
   `;
-  document.getElementById('productModal').classList.add('open');
+
+  productModal.classList.add('open');
 }
 
 function closeModal() {
-  document.getElementById('productModal').classList.remove('open');
+  const modal = document.getElementById('productModal');
+
+  if (modal) {
+    modal.classList.remove('open');
+  }
 }
 
 // ===== CART =====
 function addToCart(id) {
-  const p = products.find(x => x.id === id);
-  if (!p || p.stock <= 0) return;
+  const product = products.find(item => item.id === id);
 
-  const existing = cart.find(c => c.id === id);
+  if (!product || product.stock <= 0) return;
+
+  const existing = cart.find(item => item.id === id);
+
   if (existing) {
-    if (existing.qty < p.stock) existing.qty++;
+    if (existing.qty < product.stock) {
+      existing.qty++;
+    }
   } else {
-    cart.push({ id: p.id, qty: 1 });
+    cart.push({
+      id: product.id,
+      qty: 1
+    });
   }
+
   saveCart();
   updateCartUI();
 }
 
 function removeFromCart(id) {
-  cart = cart.filter(c => c.id !== id);
+  cart = cart.filter(item => item.id !== id);
+
   saveCart();
   updateCartUI();
 }
 
 function changeQty(id, delta) {
-  const item = cart.find(c => c.id === id);
+  const item = cart.find(cartItem => cartItem.id === id);
+
   if (!item) return;
-  const p = products.find(x => x.id === id);
+
+  const product = products.find(productItem => productItem.id === id);
+
   item.qty += delta;
+
   if (item.qty <= 0) {
     removeFromCart(id);
     return;
   }
-  if (p && item.qty > p.stock) item.qty = p.stock;
+
+  if (product && item.qty > product.stock) {
+    item.qty = product.stock;
+  }
+
   saveCart();
   updateCartUI();
 }
 
 function updateCartUI() {
-  const count = cart.reduce((s, c) => s + c.qty, 0);
-  document.getElementById('cartCount').textContent = count;
-
+  const cartCount = document.getElementById('cartCount');
   const container = document.getElementById('cartItems');
+  const cartTotal = document.getElementById('cartTotal');
+
+  const count = cart.reduce(
+    (total, item) => total + item.qty,
+    0
+  );
+
+  if (cartCount) {
+    cartCount.textContent = count;
+  }
+
+  if (!container || !cartTotal) return;
+
   if (cart.length === 0) {
-    container.innerHTML = `<div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>Tu bolsa está vacía</p></div>`;
-    document.getElementById('cartTotal').textContent = '$0';
+    container.innerHTML = `
+      <div class="cart-empty">
+        <i class="fas fa-shopping-bag"></i>
+        <p>Tu bolsa está vacía</p>
+      </div>
+    `;
+
+    cartTotal.textContent = '$0';
     return;
   }
 
   let total = 0;
-  container.innerHTML = cart.map(item => {
-    const p = products.find(x => x.id === item.id);
-    if (!p) return '';
-    const price = getDisplayPrice(p);
-    const sub = price.current * item.qty;
-    total += sub;
-    const img = p.image
-      ? `<img src="${p.image}" alt="${p.name}">`
-      : `<div class="cart-item-placeholder"><i class="fas fa-hat-cowboy"></i></div>`;
-    return `
-      <div class="cart-item">
-        ${img}
-        <div class="cart-item-info">
-          <div class="cart-item-name">${p.name}</div>
-          <div class="cart-item-price">$${price.current}</div>
-          <div class="cart-item-qty">
-            <button onclick="changeQty('${p.id}', -1)">−</button>
-            <span>${item.qty}</span>
-            <button onclick="changeQty('${p.id}', 1)">+</button>
+
+  container.innerHTML = cart
+    .map(item => {
+      const product = products.find(
+        productItem => productItem.id === item.id
+      );
+
+      if (!product) return '';
+
+      const price = getDisplayPrice(product);
+      const subtotal = price.current * item.qty;
+
+      total += subtotal;
+
+      const image = product.image
+        ? `<img src="${product.image}" alt="${product.name}">`
+        : `<div class="cart-item-placeholder"><i class="fas fa-hat-cowboy"></i></div>`;
+
+      return `
+        <div class="cart-item">
+          ${image}
+
+          <div class="cart-item-info">
+            <div class="cart-item-name">${product.name}</div>
+            <div class="cart-item-price">$${price.current}</div>
+
+            <div class="cart-item-qty">
+              <button onclick="changeQty('${product.id}', -1)">−</button>
+              <span>${item.qty}</span>
+              <button onclick="changeQty('${product.id}', 1)">+</button>
+            </div>
           </div>
+
+          <button
+            class="cart-item-remove"
+            onclick="removeFromCart('${product.id}')"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
         </div>
-        <button class="cart-item-remove" onclick="removeFromCart('${p.id}')"><i class="fas fa-trash"></i></button>
-      </div>
-    `;
-  }).join('');
-  document.getElementById('cartTotal').textContent = `$${total.toFixed(0)}`;
+      `;
+    })
+    .join('');
+
+  cartTotal.textContent = `$${total.toFixed(0)}`;
 }
 
 function toggleCart() {
-  document.getElementById('cartSidebar').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('open');
+  const sidebar = document.getElementById('cartSidebar');
+  const overlay = document.getElementById('overlay');
+
+  if (sidebar) sidebar.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
 }
 
 function closeAll() {
-  document.getElementById('cartSidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
+  const sidebar = document.getElementById('cartSidebar');
+  const overlay = document.getElementById('overlay');
+
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+
   closeModal();
 }
 
 function checkout() {
   if (cart.length === 0) return;
-  let msg = 'Hola! Quiero pedir estas gorras de OnlyBossHats:%0A%0A';
+
+  let message =
+    'Hola! Quiero pedir estas gorras de OnlyBossHats:\n\n';
+
   let total = 0;
+
   cart.forEach(item => {
-    const p = products.find(x => x.id === item.id);
-    if (!p) return;
-    const price = getDisplayPrice(p);
-    const sub = price.current * item.qty;
-    total += sub;
-    msg += `• ${p.name} x${item.qty} — $${sub}%0A`;
+    const product = products.find(
+      productItem => productItem.id === item.id
+    );
+
+    if (!product) return;
+
+    const price = getDisplayPrice(product);
+    const subtotal = price.current * item.qty;
+
+    total += subtotal;
+
+    message += `• ${product.name} x${item.qty} — $${subtotal}\n`;
   });
-  msg += `%0ATotal: $${total.toFixed(0)}`;
-  // Cambia el número por el tuyo real
-  window.open(`https://wa.me/5210000000000?text=${msg}`, '_blank');
+
+  message += `\nTotal: $${total.toFixed(0)}`;
+
+  const encodedMessage = encodeURIComponent(message);
+
+  window.open(
+    `https://wa.me/5210000000000?text=${encodedMessage}`,
+    '_blank'
+  );
 }
 
 // ===== ADMIN =====
 function loginAdmin() {
-  const pass = document.getElementById('adminPassword').value;
-  if (pass === ADMIN_PASSWORD) {
+  const passwordInput =
+    document.getElementById('adminPassword');
+
+  if (!passwordInput) return;
+
+  const password = passwordInput.value;
+
+  if (password === ADMIN_PASSWORD) {
     sessionStorage.setItem(SESSION_KEY, 'true');
     showAdminPanel();
   } else {
@@ -396,127 +581,323 @@ function loginAdmin() {
 
 function logoutAdmin() {
   sessionStorage.removeItem(SESSION_KEY);
-  document.getElementById('adminLogin').style.display = 'flex';
-  document.getElementById('adminPanel').style.display = 'none';
-  document.getElementById('adminPassword').value = '';
+
+  const login = document.getElementById('adminLogin');
+  const panel = document.getElementById('adminPanel');
+  const password = document.getElementById('adminPassword');
+
+  if (login) login.style.display = 'flex';
+  if (panel) panel.style.display = 'none';
+  if (password) password.value = '';
 }
 
 function showAdminPanel() {
-  document.getElementById('adminLogin').style.display = 'none';
-  document.getElementById('adminPanel').style.display = 'block';
+  const login = document.getElementById('adminLogin');
+  const panel = document.getElementById('adminPanel');
+
+  if (login) login.style.display = 'none';
+  if (panel) panel.style.display = 'block';
+
   renderAdminProducts();
 }
 
 function showAdminTab(tab, btn) {
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('adminProducts').style.display = tab === 'products' ? 'block' : 'none';
-  document.getElementById('adminAdd').style.display = tab === 'add' ? 'block' : 'none';
-  document.getElementById('adminOrders').style.display = tab === 'orders' ? 'block' : 'none';
-  if (tab === 'products') renderAdminProducts();
+  document.querySelectorAll('.admin-tab').forEach(
+    element => element.classList.remove('active')
+  );
+
+  if (btn) {
+    btn.classList.add('active');
+  }
+
+  const productsSection =
+    document.getElementById('adminProducts');
+
+  const addSection =
+    document.getElementById('adminAdd');
+
+  const ordersSection =
+    document.getElementById('adminOrders');
+
+  if (productsSection) {
+    productsSection.style.display =
+      tab === 'products' ? 'block' : 'none';
+  }
+
+  if (addSection) {
+    addSection.style.display =
+      tab === 'add' ? 'block' : 'none';
+  }
+
+  if (ordersSection) {
+    ordersSection.style.display =
+      tab === 'orders' ? 'block' : 'none';
+  }
+
+  if (tab === 'products') {
+    renderAdminProducts();
+  }
 }
 
 function renderAdminProducts() {
-  const search = (document.getElementById('adminSearch')?.value || '').toLowerCase();
+  const searchInput =
+    document.getElementById('adminSearch');
+
+  const tbody =
+    document.getElementById('adminProductsBody');
+
+  if (!tbody) return;
+
+  const search =
+    (searchInput?.value || '').toLowerCase();
+
   let list = products;
-  if (search) list = list.filter(p => p.name.toLowerCase().includes(search));
 
-  const tbody = document.getElementById('adminProductsBody');
-  tbody.innerHTML = list.map(p => {
-    const price = getDisplayPrice(p);
-    let statusClass = 'status-ok';
-    let statusText = 'En stock';
-    if (p.stock <= 0) { statusClass = 'status-out'; statusText = 'Sold Out'; }
-    else if (p.stock <= 3) { statusClass = 'status-low'; statusText = 'Poco stock'; }
+  if (search) {
+    list = list.filter(product =>
+      product.name.toLowerCase().includes(search)
+    );
+  }
 
-    const img = p.image
-      ? `<img src="${p.image}" class="admin-thumb" alt="">`
-      : `<div class="admin-thumb-ph"><i class="fas fa-hat-cowboy"></i></div>`;
+  tbody.innerHTML = list
+    .map(product => {
+      const price = getDisplayPrice(product);
 
-    return `
-      <tr>
-        <td>${img}</td>
-        <td><strong>${p.name}</strong></td>
-        <td>${p.category === 'drop' ? 'Drop' : 'Gorras'}</td>
-        <td>
-          $${price.current}
-          ${price.old ? `<br><small style="color:#888;text-decoration:line-through">$${price.old}</small>` : ''}
-        </td>
-        <td>${p.stock}</td>
-        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-        <td>
-          <div class="action-btns">
-            <button onclick="editProduct('${p.id}')" title="Editar"><i class="fas fa-pen"></i></button>
-            <button onclick="toggleStock('${p.id}')" title="Cambiar stock"><i class="fas fa-boxes"></i></button>
-            <button onclick="deleteProduct('${p.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
+      let statusClass = 'status-ok';
+      let statusText = 'En stock';
+
+      if (product.stock <= 0) {
+        statusClass = 'status-out';
+        statusText = 'Sold Out';
+      } else if (product.stock <= 3) {
+        statusClass = 'status-low';
+        statusText = 'Poco stock';
+      }
+
+      const image = product.image
+        ? `<img src="${product.image}" class="admin-thumb" alt="">`
+        : `<div class="admin-thumb-ph"><i class="fas fa-hat-cowboy"></i></div>`;
+
+      return `
+        <tr>
+          <td>${image}</td>
+
+          <td>
+            <strong>${product.name}</strong>
+          </td>
+
+          <td>
+            ${product.category === 'drop' ? 'Drop' : 'Gorras'}
+          </td>
+
+          <td>
+            $${price.current}
+
+            ${
+              price.old
+                ? `<br><small style="color:#888;text-decoration:line-through">$${price.old}</small>`
+                : ''
+            }
+          </td>
+
+          <td>${product.stock}</td>
+
+          <td>
+            <span class="status-badge ${statusClass}">
+              ${statusText}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button
+                onclick="editProduct('${product.id}')"
+                title="Editar"
+              >
+                <i class="fas fa-pen"></i>
+              </button>
+
+              <button
+                onclick="toggleStock('${product.id}')"
+                title="Cambiar stock"
+              >
+                <i class="fas fa-boxes"></i>
+              </button>
+
+              <button
+                onclick="deleteProduct('${product.id}')"
+                title="Eliminar"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    })
+    .join('');
 }
 
-function previewImage(e) {
-  const file = e.target.files[0];
+// ===== IMAGE =====
+function previewImage(event) {
+  const file = event.target.files[0];
+
   if (!file) return;
+
   const reader = new FileReader();
-  reader.onload = (ev) => {
-    currentImageBase64 = ev.target.result;
-    document.getElementById('imagePreview').innerHTML = `<img src="${currentImageBase64}" alt="preview">`;
+
+  reader.onload = event => {
+    currentImageBase64 = event.target.result;
+
+    const preview =
+      document.getElementById('imagePreview');
+
+    if (preview) {
+      preview.innerHTML = `
+        <img src="${currentImageBase64}" alt="preview">
+      `;
+    }
   };
+
   reader.readAsDataURL(file);
 }
 
+// ===== PRODUCT FORM =====
 function resetForm() {
-  document.getElementById('productForm').reset();
-  document.getElementById('editId').value = '';
+  const form = document.getElementById('productForm');
+  const editId = document.getElementById('editId');
+  const preview = document.getElementById('imagePreview');
+  const saveButton = document.getElementById('saveBtn');
+
+  if (form) form.reset();
+
+  if (editId) editId.value = '';
+
   currentImageBase64 = null;
-  document.getElementById('imagePreview').innerHTML = `<i class="fas fa-camera"></i><span>Subir foto</span>`;
-  document.getElementById('saveBtn').textContent = 'Guardar Producto';
+
+  if (preview) {
+    preview.innerHTML = `
+      <i class="fas fa-camera"></i>
+      <span>Subir foto</span>
+    `;
+  }
+
+  if (saveButton) {
+    saveButton.textContent = 'Guardar Producto';
+  }
 }
 
 function editProduct(id) {
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  document.getElementById('editId').value = p.id;
-  document.getElementById('pName').value = p.name;
-  document.getElementById('pCategory').value = p.category;
-  document.getElementById('pPrice').value = p.price;
-  document.getElementById('pSalePrice').value = p.salePrice || '';
-  document.getElementById('pStock').value = p.stock;
-  document.getElementById('pDesc').value = p.description || '';
-  currentImageBase64 = p.image;
-  if (p.image) {
-    document.getElementById('imagePreview').innerHTML = `<img src="${p.image}" alt="preview">`;
-  } else {
-    document.getElementById('imagePreview').innerHTML = `<i class="fas fa-camera"></i><span>Subir foto</span>`;
+  const product = products.find(
+    item => item.id === id
+  );
+
+  if (!product) return;
+
+  document.getElementById('editId').value = product.id;
+  document.getElementById('pName').value = product.name;
+  document.getElementById('pCategory').value = product.category;
+  document.getElementById('pPrice').value = product.price;
+  document.getElementById('pSalePrice').value =
+    product.salePrice || '';
+  document.getElementById('pStock').value = product.stock;
+  document.getElementById('pDesc').value =
+    product.description || '';
+
+  currentImageBase64 = product.image;
+
+  const preview =
+    document.getElementById('imagePreview');
+
+  if (preview) {
+    preview.innerHTML = product.image
+      ? `<img src="${product.image}" alt="preview">`
+      : `<i class="fas fa-camera"></i><span>Subir foto</span>`;
   }
-  document.getElementById('saveBtn').textContent = 'Actualizar Producto';
-  // Switch to add tab
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.admin-tab')[1].classList.add('active');
-  document.getElementById('adminProducts').style.display = 'none';
-  document.getElementById('adminAdd').style.display = 'block';
-  document.getElementById('adminOrders').style.display = 'none';
+
+  const saveButton =
+    document.getElementById('saveBtn');
+
+  if (saveButton) {
+    saveButton.textContent = 'Actualizar Producto';
+  }
+
+  document.querySelectorAll('.admin-tab').forEach(
+    tab => tab.classList.remove('active')
+  );
+
+  const tabs =
+    document.querySelectorAll('.admin-tab');
+
+  if (tabs[1]) {
+    tabs[1].classList.add('active');
+  }
+
+  const adminProducts =
+    document.getElementById('adminProducts');
+
+  const adminAdd =
+    document.getElementById('adminAdd');
+
+  const adminOrders =
+    document.getElementById('adminOrders');
+
+  if (adminProducts) adminProducts.style.display = 'none';
+  if (adminAdd) adminAdd.style.display = 'block';
+  if (adminOrders) adminOrders.style.display = 'none';
 }
 
-function saveProduct(e) {
-  e.preventDefault();
-  const editId = document.getElementById('editId').value;
+function saveProduct(event) {
+  event.preventDefault();
+
+  const editId =
+    document.getElementById('editId').value;
+
   const data = {
     name: document.getElementById('pName').value.trim(),
-    category: document.getElementById('pCategory').value,
-    price: parseFloat(document.getElementById('pPrice').value),
-    salePrice: document.getElementById('pSalePrice').value ? parseFloat(document.getElementById('pSalePrice').value) : null,
-    stock: parseInt(document.getElementById('pStock').value, 10),
-    description: document.getElementById('pDesc').value.trim(),
+
+    category:
+      document.getElementById('pCategory').value,
+
+    price:
+      parseFloat(
+        document.getElementById('pPrice').value
+      ),
+
+    salePrice:
+      document.getElementById('pSalePrice').value
+        ? parseFloat(
+            document.getElementById('pSalePrice').value
+          )
+        : null,
+
+    stock:
+      parseInt(
+        document.getElementById('pStock').value,
+        10
+      ),
+
+    description:
+      document.getElementById('pDesc').value.trim(),
+
     image: currentImageBase64
   };
 
+  if (!data.name || isNaN(data.price) || isNaN(data.stock)) {
+    alert('Completa correctamente los datos del producto.');
+    return;
+  }
+
   if (editId) {
-    const idx = products.findIndex(x => x.id === editId);
-    if (idx !== -1) {
-      products[idx] = { ...products[idx], ...data };
+    const index = products.findIndex(
+      product => product.id === editId
+    );
+
+    if (index !== -1) {
+      products[index] = {
+        ...products[index],
+        ...data
+      };
     }
   } else {
     products.push({
@@ -530,63 +911,87 @@ function saveProduct(e) {
   resetForm();
   renderAll();
   renderAdminProducts();
-  alert(editId ? 'Producto actualizado' : 'Producto agregado');
-  // Go back to products tab
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.admin-tab')[0].classList.add('active');
-  document.getElementById('adminProducts').style.display = 'block';
-  document.getElementById('adminAdd').style.display = 'none';
+
+  alert(
+    editId
+      ? 'Producto actualizado'
+      : 'Producto agregado'
+  );
+
+  document.querySelectorAll('.admin-tab').forEach(
+    tab => tab.classList.remove('active')
+  );
+
+  const tabs =
+    document.querySelectorAll('.admin-tab');
+
+  if (tabs[0]) {
+    tabs[0].classList.add('active');
+  }
+
+  const adminProducts =
+    document.getElementById('adminProducts');
+
+  const adminAdd =
+    document.getElementById('adminAdd');
+
+  if (adminProducts) adminProducts.style.display = 'block';
+  if (adminAdd) adminAdd.style.display = 'none';
 }
 
+// ===== STOCK =====
 function toggleStock(id) {
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  const newStock = prompt(`Stock actual de "${p.name}": ${p.stock}\n\nIngresa el nuevo stock:`, p.stock);
+  const product = products.find(
+    item => item.id === id
+  );
+
+  if (!product) return;
+
+  const newStock = prompt(
+    `Stock actual de "${product.name}": ${product.stock}\n\nIngresa el nuevo stock:`,
+    product.stock
+  );
+
   if (newStock === null) return;
-  const n = parseInt(newStock, 10);
-  if (isNaN(n) || n < 0) {
+
+  const stock = parseInt(newStock, 10);
+
+  if (isNaN(stock) || stock < 0) {
     alert('Número inválido');
     return;
   }
-  p.stock = n;
-  saveProducts();
-  renderAll();
-  renderAdminProducts();
-}
 
-function deleteProduct(id) {
-  if (!confirm('¿Eliminar este producto?')) return;
-  products = products.filter(x => x.id !== id);
-  cart = cart.filter(c => c.id !== id);
+  product.stock = stock;
+
   saveProducts();
-  saveCart();
   renderAll();
   renderAdminProducts();
   updateCartUI();
 }
 
-// Close modal on escape
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeAll();
-});
-function showSection(sectionId) {
-  document.querySelectorAll('.section').forEach(section => {
-    section.classList.remove('active');
-  });
+// ===== DELETE PRODUCT =====
+function deleteProduct(id) {
+  if (!confirm('¿Eliminar este producto?')) return;
 
-  const section = document.getElementById(sectionId);
+  products = products.filter(
+    product => product.id !== id
+  );
 
-  if (section) {
-    section.classList.add('active');
-  }
+  cart = cart.filter(
+    item => item.id !== id
+  );
 
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
+  saveProducts();
+  saveCart();
 
-  const navLinks = document.getElementById('navLinks');
-  if (navLinks) {
-    navLinks.classList.remove('open');
-  }
+  renderAll();
+  renderAdminProducts();
+  updateCartUI();
 }
+
+// ===== ESCAPE =====
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    closeAll();
+  }
+});
