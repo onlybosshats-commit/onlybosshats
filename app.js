@@ -1,4 +1,5 @@
 // ===== ONLYBOSSHATS APP =====
+// ===== ONLYBOSSHATS APP =====
 sb_publishable_nE1xWjVKxVnFmEpBDuKNqQ_7Hoh7-OL const SUPABASE_URL = 'https://wvoqwpmteurqmtwtvior.supabase.co';
 const SUPABASE_KEY = 'PEGA_AQUI_TU_PUBLISHABLE_KEY';
 
@@ -12,6 +13,22 @@ const SESSION_KEY = 'onlybosshats_admin';
 
 // Default products (seed)
 const DEFAULT_PRODUCTS = [
+  {
+    id: '1',
+    name: 'Boss Classic Black',
+    category: 'gorras',
+    price: 450,
+    salePrice: null,
+    stock: 15,
+    description: 'Gorra clásica negra con logo bordado en rojo. Ajuste perfecto y tela premium.',
+    image: null,
+    createdAt: Date.now()
+  },
+  {
+    id: '2',
+    name: 'Red Boss Snapback',
+    category: 'gorras',
+    price: 480,
   {
     id: '1',
     name: 'Boss Classic Black',
