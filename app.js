@@ -1,5 +1,11 @@
 // ===== ONLYBOSSHATS APP =====
-const ADMIN_PASSWORD = 'onlyboss2024';
+const SUPABASE_URL = 'https://wvoqwpmteurqmtwtvior.supabase.co';
+const SUPABASE_KEY = 'PEGA_AQUI_TU_PUBLISHABLE_KEY';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+); const ADMIN_PASSWORD = 'onlyboss2024';
 const STORAGE_KEY = 'onlybosshats_products';
 const CART_KEY = 'onlybosshats_cart';
 const SESSION_KEY = 'onlybosshats_admin';
