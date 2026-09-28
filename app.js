@@ -556,9 +556,9 @@ function checkout() {
   const encodedMessage = encodeURIComponent(message);
 
   window.open(
-    `https://wa.me/5210000000000?text=${encodedMessage}`,
-    '_blank'
-  );
+  'https://www.instagram.com/onlybosshats/',
+  '_blank'
+); 
 }
 
 // ===== ADMIN =====
