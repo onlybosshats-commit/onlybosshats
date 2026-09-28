@@ -1,17 +1,43 @@
-// ===== ONLYBOSSHATS APP =====
-sb_publishable_nE1xWjVKxVnFmEpBDuKNqQ_7Hoh7-OL const SUPABASE_URL = 'https://wvoqwpmteurqmtwtvior.supabase.co';
-const SUPABASE_KEY = 'PEGA_AQUI_TU_PUBLISHABLE_KEY';
+// ===== ONLYBOSSHATS APP =====// ===== ONLYBOSSHATS APP =====
+
+const SUPABASE_URL = 'https://wvoqwpmteurqmtwtvior.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_nE1xWjVKxVnFmEpBDuKNqQ_7Hoh7-OL';
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
-); const ADMIN_PASSWORD = 'onlyboss2024';
+);
+
+const ADMIN_PASSWORD = 'onlyboss2024';
 const STORAGE_KEY = 'onlybosshats_products';
 const CART_KEY = 'onlybosshats_cart';
 const SESSION_KEY = 'onlybosshats_admin';
 
 // Default products (seed)
 const DEFAULT_PRODUCTS = [
+  {
+    id: '1',
+    name: 'Boss Classic Black',
+    category: 'gorras',
+    price: 450,
+    salePrice: null,
+    stock: 15,
+    description: 'Gorra clásica negra con logo bordado en rojo. Ajuste perfecto y tela premium.',
+    image: null,
+    createdAt: Date.now()
+  },
+  {
+    id: '2',
+    name: 'Red Boss Snapback',
+    category: 'gorras',
+    price: 480,
+    salePrice: null,
+    stock: 10,
+    description: 'Snapback roja con diseño premium.',
+    image: null,
+    createdAt: Date.now()
+  }
+];
   {
     id: '1',
     name: 'Boss Classic Black',
