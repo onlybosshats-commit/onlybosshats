@@ -521,3 +521,24 @@ function deleteProduct(id) {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeAll();
 });
+function showSection(sectionId) {
+  document.querySelectorAll('.section').forEach(section => {
+    section.classList.remove('active');
+  });
+
+  const section = document.getElementById(sectionId);
+
+  if (section) {
+    section.classList.add('active');
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks) {
+    navLinks.classList.remove('open');
+  }
+}
