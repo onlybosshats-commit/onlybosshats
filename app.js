@@ -1,5 +1,4 @@
-// ===== ONLYBOSSHATS APP =====
-
+// ONLYBOSSHATS APP
 const SUPABASE_URL = 'https://wvoqwpmteurqmtwtvior.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_nE1xWjVKxVnFmEpBDuKNqQ_7Hoh7-OL';
 
